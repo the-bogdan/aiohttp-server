@@ -1,0 +1,7 @@
+.env
+.idea
+*.pyc
+
+/app/config.py
+logs/*
+app/logs/*
