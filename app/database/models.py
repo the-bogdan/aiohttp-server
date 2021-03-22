@@ -41,12 +41,15 @@ class UserRelation(Base):
     dst_user = relationship("User", foreign_keys=[src_user_id])
 
 
-order_product = Table(
-    'orders_products',
-    Base.metadata,
-    Column('order_id', Integer, ForeignKey("orders.id")),
-    Column('product_id', Integer, ForeignKey("products.id"))
-)
+class OrderProduct(Base):
+    __tablename__ = 'orders_products'
+
+    id = Column(Integer, primary_key=True)
+    order_id = Column(Integer, ForeignKey("orders.id"))
+    product_id = Column(Integer, ForeignKey("products.id"))
+
+    order = relationship("Order", foreign_keys=[order_id], back_populates='products')
+    product = relationship("Product", foreign_keys=[product_id], back_populates='orders')
 
 
 class Order(Base):
@@ -57,11 +60,7 @@ class Order(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
 
     user = relationship('User', foreign_keys=[user_id], back_populates="orders")
-    products = relationship(
-        'Product',
-        secondary=order_product,
-        back_populates='orders'
-    )
+    products = relationship('OrderProduct', back_populates='order')
 
 
 class Product(Base):
@@ -73,8 +72,4 @@ class Product(Base):
     price = Column(Float)
     left_in_stock = Column(Integer)
 
-    orders = relationship(
-        "Order",
-        secondary=order_product,
-        back_populates='products'
-    )
+    orders = relationship("OrderProduct", back_populates='product')

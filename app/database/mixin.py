@@ -1,0 +1,4 @@
+
+
+class MixinCRUD:
+    pass
