@@ -12,7 +12,7 @@ class OrdersBusinessModel(AbstractBusinessModel):
         order = await self.session.get(Order, int(order_id))
         return order
 
-    async def post(self) -> Tuple[List[Order], List[Base]]:
+    async def search(self) -> Tuple[List[Order], List[Base]]:
         body: dict = await self.request.json()
         filters = body.get('filters', [])
         with_entities = body.get('with_entities', [])
@@ -41,7 +41,7 @@ class OrdersBusinessModel(AbstractBusinessModel):
 
         return results, included
 
-    async def put(self) -> Order:
+    async def create(self) -> Order:
         body: dict = await self.request.json()
         attributes = body['data']['attributes']
         # TODO Нормальная валидация
@@ -59,7 +59,7 @@ class OrdersBusinessModel(AbstractBusinessModel):
         await self.session.commit()
         return order
 
-    async def patch(self) -> Order:
+    async def update(self) -> Order:
         body: dict = await self.request.json()
         attributes = body['data']['attributes']
         # TODO Нормальная валидация

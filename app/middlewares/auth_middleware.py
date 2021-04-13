@@ -31,11 +31,11 @@ async def _check_auth(request: Request) -> bool:
 
 async def _get_user(nickname: str, password: str, request: Request) -> User:
     """Get user from database by nickname and password"""
-    session: AsyncSession = request['db_session']
+    session: AsyncSession = request['postgres_session']
     result = await session.execute(
         select(User).where(
-            User._nickname == nickname,
-            User._password == password
+            User.nickname == nickname,
+            User.password == password
         )
     )
     return result.scalar()

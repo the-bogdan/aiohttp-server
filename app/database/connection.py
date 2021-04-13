@@ -1,7 +1,6 @@
-from aiohttp import web
-from database import Base
 from config import config
-from sqlalchemy import text
+from sqlalchemy import insert
+from database import Base, User
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -25,7 +24,22 @@ async def create_db_tables():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-        await conn.execute(
-            text("INSERT INTO users (last_name, first_name, _nickname, _password) VALUES "
-                 "('admin', 'админ', 'admin', 'admin')")
-        )
+        await _create_default_users(conn)
+
+
+async def _create_default_users(conn):
+    default_users = [
+        # first_name, last_name, nickname, password
+        ('Система', 'System', 'system', 'system'),
+        ('admin', 'admin', 'admin', 'admin')
+    ]
+
+    for fist_name, last_name, nickname, password in default_users:
+        await conn.execute(insert(User).values(
+            first_name=fist_name,
+            last_name=last_name,
+            nickname=nickname,
+            password=password,
+            created_by=1,
+            updated_by=1
+        ))

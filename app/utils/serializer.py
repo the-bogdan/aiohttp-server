@@ -1,5 +1,7 @@
-from database import Base
+from datetime import datetime
 from collections import defaultdict
+from sqlalchemy.inspection import inspect
+from database import Base as SqlalchemyBase
 from typing import Iterable, Tuple, Optional
 from aiohttp.web import json_response, Response
 
@@ -33,9 +35,9 @@ class ResponseSerializer:
         }
         return json_response(result)
 
-    def serialize_object(self, entity: Base) -> 'ResponseSerializer':
+    def serialize_object(self, entity: SqlalchemyBase) -> 'ResponseSerializer':
         self._is_collection = False
-        if entity and isinstance(entity, object):
+        if entity and isinstance(entity, SqlalchemyBase):
             self._data = self._serialize_object(entity)
         else:
             self._data = {
@@ -45,49 +47,57 @@ class ResponseSerializer:
             }
         return self
 
-    def serialize_collection(self, entities: Iterable[object]) -> 'ResponseSerializer':
+    def serialize_collection(self, entities: Iterable[SqlalchemyBase]) -> 'ResponseSerializer':
         self._is_collection = True
         self._data = defaultdict(dict)
         for entity in entities:
-            if entity and isinstance(entity, object):
+            if entity and isinstance(entity, SqlalchemyBase):
                 entity_id, model_type = self._get_entity_params(entity)
                 self._data[model_type][entity_id] = entity
         return self
 
-    def append_object_in_included(self, entity: object) -> 'ResponseSerializer':
-        if entity and isinstance(entity, object):
+    def append_object_in_included(self, entity: SqlalchemyBase) -> 'ResponseSerializer':
+        if entity and isinstance(entity, SqlalchemyBase):
             entity_id, model_type = self._get_entity_params(entity)
             self._included[model_type][entity_id] = entity
         return self
 
-    def append_collection_in_included(self, entities: Iterable[object]):
+    def append_collection_in_included(self, entities: Iterable[SqlalchemyBase]):
         for entity in entities:
-            if entity and isinstance(entity, object):
+            if entity and isinstance(entity, SqlalchemyBase):
                 entity_id, model_type = self._get_entity_params(entity)
                 self._included[model_type][entity_id] = entity
         return self
 
     @staticmethod
-    def _get_entity_params(entity: object) -> Tuple[Optional[int], Optional[str]]:
+    def _get_entity_params(entity: SqlalchemyBase) -> Tuple[Optional[int], Optional[str]]:
         """Return SQLAlchemy model type and id"""
         model_type = getattr(entity, '__tablename__', None)
         entity_id = getattr(entity, 'id', None)
         return entity_id, model_type
 
     @staticmethod
-    def _serialize_object(entity: Base) -> dict:
+    def _serialize_object(entity: SqlalchemyBase) -> dict:
         """Serialize SQLAlchemy model into dict object"""
         data = {
             'id': getattr(entity, 'id', None),
             'model_type': getattr(entity, '__tablename__', None),
             'attributes': {}
         }
-        for key, value in entity.__dict__.items():
-            if not key.startswith('_'):
-                if isinstance(value, Base):
-                    pass
-                elif isinstance(value, list) and isinstance(next(iter(value), []), Base):
-                    pass
-                else:
-                    data['attributes'][key] = value
+        hidden_attrs = getattr(entity, '_hidden', set())
+        for attr in inspect(entity).attrs.values():
+            key, value = attr.key, attr.loaded_value
+            if key in hidden_attrs or key in attr.state.unloaded:
+                continue
+
+            # TODO Допилить
+            elif isinstance(value, SqlalchemyBase):
+                pass
+            elif isinstance(value, list) and isinstance(next(iter(value), []), SqlalchemyBase):
+                pass
+
+            elif isinstance(value, datetime):
+                data['attributes'][key] = value.strftime('%Y-%m-%d %H:%M:%S')
+            else:
+                data['attributes'][key] = str(value)
         return data

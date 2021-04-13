@@ -6,6 +6,6 @@ from aiohttp.web import Response, Request, middleware
 async def session_middleware(request: Request, handler) -> Response:
     """Layer opens database connection during handling request"""
     async with context_session() as session:
-        request['db_session'] = session
+        request['postgres_session'] = session
         response = await handler(request)
     return response

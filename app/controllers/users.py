@@ -1,52 +1,45 @@
-from aiohttp.web import Request, Response
 from business_models import UsersBusinessModel
 from utils.serializer import ResponseSerializer
-from utils.abstract_controller import AbstractController
+from aiohttp.web import Request, Response, View
 
 
-class UsersController(AbstractController):
+class UsersController(View):
     """Class defines handlers for user instance"""
-    entity_route = '/users'
 
-    @classmethod
-    async def get(cls, request: Request) -> Response:
+    async def get(self) -> Response:
         """Get user entity by id"""
-        bm = UsersBusinessModel(request)
+        bm = UsersBusinessModel(self.request)
         user = await bm.get()
         return ResponseSerializer().serialize_object(user).response
 
-    @classmethod
-    async def post(cls, request: Request) -> Response:
+    async def post(self) -> Response:
         """Get user entities filtered by fields and optional with orders and products entities in included"""
-        bm = UsersBusinessModel(request)
-        users, included = await bm.post()
+        bm = UsersBusinessModel(self.request)
+        users, included = await bm.search()
         return ResponseSerializer() \
             .serialize_collection(users) \
             .append_collection_in_included(included) \
             .response
 
-    @classmethod
-    async def put(cls, request: Request) -> Response:
+    async def put(self) -> Response:
         """Create user"""
-        bm = UsersBusinessModel(request)
-        user = await bm.put()
+        bm = UsersBusinessModel(self.request)
+        user = await bm.create()
         return ResponseSerializer() \
             .serialize_object(user) \
             .response
 
-    @classmethod
-    async def patch(cls, request: Request) -> Response:
+    async def patch(self) -> Response:
         """Update user"""
-        bm = UsersBusinessModel(request)
-        user = await bm.patch()
+        bm = UsersBusinessModel(self.request)
+        user = await bm.update()
         return ResponseSerializer() \
             .serialize_object(user) \
             .response
 
-    @classmethod
-    async def delete(cls, request: Request) -> Response:
+    async def delete(self) -> Response:
         """Delete user"""
-        bm = UsersBusinessModel(request)
+        bm = UsersBusinessModel(self.request)
         user = await bm.delete()
         return ResponseSerializer() \
             .serialize_object(user) \

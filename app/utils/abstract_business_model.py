@@ -7,7 +7,7 @@ class AbstractBusinessModel:
     def __init__(self, request: Request):
         self._request: Request = request
         self._user_id: int = request['user_id']
-        self._session: AsyncSession = request['db_session']
+        self._session: AsyncSession = request['postgres_session']
 
     @property
     def request(self):

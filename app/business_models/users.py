@@ -12,7 +12,7 @@ class UsersBusinessModel(AbstractBusinessModel):
         user = await self.session.get(User, int(user_id))
         return user
 
-    async def post(self) -> Tuple[List[User], List[Base]]:
+    async def search(self) -> Tuple[List[User], List[Base]]:
         body: dict = await self.request.json()
         filters = body.get('filters', [])
         with_entities = body.get('with_entities', [])
@@ -42,7 +42,7 @@ class UsersBusinessModel(AbstractBusinessModel):
 
         return results, included
 
-    async def put(self) -> User:
+    async def create(self) -> User:
         body: dict = await self.request.json()
         attributes = body['data']['attributes']
         # TODO Нормальная валидация
@@ -63,7 +63,7 @@ class UsersBusinessModel(AbstractBusinessModel):
         await self.session.commit()
         return user
 
-    async def patch(self) -> User:
+    async def update(self) -> User:
         body: dict = await self.request.json()
         attributes = body['data']['attributes']
         # TODO Нормальная валидация

@@ -1,10 +1,9 @@
-from aiohttp.web import Request, Response
 from utils.serializer import ResponseSerializer
 from business_models import OrdersBusinessModel
-from utils.abstract_controller import AbstractController
+from aiohttp.web import Request, Response, View
 
 
-class OrdersController(AbstractController):
+class OrdersController(View):
     """Class defines handlers for order instance"""
     entity_route = '/orders'
 
@@ -19,7 +18,7 @@ class OrdersController(AbstractController):
     async def post(cls, request: Request) -> Response:
         """Get user entities filtered by fields and optional with orders and products entities in included"""
         bm = OrdersBusinessModel(request)
-        users, included = await bm.post()
+        users, included = await bm.search()
         return ResponseSerializer() \
             .serialize_collection(users) \
             .append_collection_in_included(included) \
@@ -29,7 +28,7 @@ class OrdersController(AbstractController):
     async def put(cls, request: Request) -> Response:
         """Create user"""
         bm = OrdersBusinessModel(request)
-        user = await bm.put()
+        user = await bm.create()
         return ResponseSerializer() \
             .serialize_object(user) \
             .response
@@ -38,7 +37,7 @@ class OrdersController(AbstractController):
     async def patch(cls, request: Request) -> Response:
         """Update user"""
         bm = OrdersBusinessModel(request)
-        user = await bm.patch()
+        user = await bm.update()
         return ResponseSerializer() \
             .serialize_object(user) \
             .response
