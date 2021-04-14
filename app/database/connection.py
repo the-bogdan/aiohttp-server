@@ -7,9 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngine
 
 
-__all__ = ['PostgresDatabase', 'PGContextSession']
-
-
 class PGContextSession:
     def __init__(self):
         self.__session_instance: AsyncSession = None

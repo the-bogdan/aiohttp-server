@@ -1,9 +1,9 @@
 from datetime import datetime
 from collections import defaultdict
 from sqlalchemy.inspection import inspect
-from database import Base as SqlalchemyBase
 from typing import Iterable, Tuple, Optional
 from aiohttp.web import json_response, Response
+from database import Base as SqlalchemyBase, ModelMapper
 
 
 class ResponseSerializer:
@@ -84,20 +84,18 @@ class ResponseSerializer:
             'model_type': getattr(entity, '__tablename__', None),
             'attributes': {}
         }
+        attrs = ModelMapper.get_columns(getattr(entity, '__tablename__', None))
         hidden_attrs = getattr(entity, '_hidden', set())
-        for attr in inspect(entity).attrs.values():
-            key, value = attr.key, attr.loaded_value
-            if key in hidden_attrs or key in attr.state.unloaded:
-                continue
+        if attrs:
+            for key, _ in attrs.items():
+                if key in hidden_attrs:
+                    continue
+                value = getattr(entity, key, None)
+                if isinstance(value, datetime):
+                    data['attributes'][key] = value.strftime('%Y-%m-%d %H:%M:%S')
+                elif value is None:
+                    data['attributes'][key] = value
+                else:
+                    data['attributes'][key] = str(value)
 
-            # TODO Допилить
-            elif isinstance(value, SqlalchemyBase):
-                pass
-            elif isinstance(value, list) and isinstance(next(iter(value), []), SqlalchemyBase):
-                pass
-
-            elif isinstance(value, datetime):
-                data['attributes'][key] = value.strftime('%Y-%m-%d %H:%M:%S')
-            else:
-                data['attributes'][key] = str(value)
         return data

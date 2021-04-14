@@ -1,7 +1,7 @@
 import networkx as nx
 
 from typing import List
-from database import ModelMapper
+from .mapper import ModelMapper
 from sqlalchemy.inspection import inspect
 
 

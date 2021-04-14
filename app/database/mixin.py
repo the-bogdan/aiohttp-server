@@ -17,12 +17,12 @@ class MixinCRUD:
         setattr(self, 'created_at', datetime.utcnow())
         setattr(self, 'created_by', user_id)
 
-    def updated_created(self, user_id: int):
+    def label_updated(self, user_id: int):
         """Label entity as updated"""
         setattr(self, 'updated_at', datetime.utcnow())
         setattr(self, 'updated_by', user_id)
 
-    def deleted_created(self, user_id: int):
+    def label_deleted(self, user_id: int):
         """Label entity as deleted"""
         setattr(self, 'deleted_at', datetime.utcnow())
         setattr(self, 'deleted_by', user_id)

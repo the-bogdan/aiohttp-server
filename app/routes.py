@@ -16,3 +16,6 @@ def register_routes(app: Application):
         app.router.add_view(*model_controller)
 
     app.router.add_route('GET', '/{entity_type}/{id}', BaseController.get_by_id)
+    app.router.add_route('POST', '/{entity_type}', BaseController.post)
+    app.router.add_route('PUT', '/{entity_type}/{id}', BaseController.put)
+    app.router.add_route('DELETE', '/{entity_type}/{id}', BaseController.delete)

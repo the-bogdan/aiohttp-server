@@ -17,7 +17,7 @@ class BaseController:
     async def get_by_id(cls, request: Request) -> Response:
         """Get entity by id"""
         request_data = await RequestData.create(request)
-        BaseValidator.get_by_id(request_data)
+        await BaseValidator.get_by_id(request_data)
 
         bm = BaseBusinessModel(request_data)
         entity = await bm.get_by_id()
@@ -25,20 +25,23 @@ class BaseController:
             .serialize_object(entity) \
             .response
 
-    @classmethod
-    async def get(cls, request: Request) -> Response:
-        """Get filtered and ordered list of entities"""
-        bm = BaseBusinessModel(request)
-        entities, included = await bm.search()
-        return ResponseSerializer() \
-            .serialize_collection(entities) \
-            .append_collection_in_included(included) \
-            .response
+    # @classmethod
+    # async def get(cls, request: Request) -> Response:
+    #     """Get filtered and ordered list of entities"""
+    #     bm = BaseBusinessModel(request)
+    #     entities, included = await bm.search()
+    #     return ResponseSerializer() \
+    #         .serialize_collection(entities) \
+    #         .append_collection_in_included(included) \
+    #         .response
 
     @classmethod
     async def post(cls, request: Request) -> Response:
         """Create new entity"""
-        bm = BaseBusinessModel(request)
+        request_data = await RequestData.create(request)
+        await BaseValidator.post(request_data)
+
+        bm = BaseBusinessModel(request_data)
         entity = await bm.create()
         return ResponseSerializer() \
             .serialize_object(entity) \
@@ -47,7 +50,10 @@ class BaseController:
     @classmethod
     async def put(cls, request: Request) -> Response:
         """Update entity"""
-        bm = BaseBusinessModel(request)
+        request_data = await RequestData.create(request)
+        await BaseValidator.put(request_data)
+
+        bm = BaseBusinessModel(request_data)
         entity = await bm.update()
         return ResponseSerializer() \
             .serialize_object(entity) \
@@ -56,7 +62,10 @@ class BaseController:
     @classmethod
     async def delete(cls, request: Request) -> Response:
         """Delete entity"""
-        bm = BaseBusinessModel(request)
+        request_data = await RequestData.create(request)
+        await BaseValidator.delete(request_data)
+
+        bm = BaseBusinessModel(request_data)
         entity = await bm.delete()
         return ResponseSerializer() \
             .serialize_object(entity) \

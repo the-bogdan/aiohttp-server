@@ -1,21 +1,26 @@
 from .request_data import RequestData
-from utils.custom_exception import ExecutionException
+from utils.validation_utils import ValidationUtils
 
 
 class BaseValidator:
     @classmethod
-    def get_by_id(cls, request_data: RequestData):
-        if not request_data.entity_id:
-            cls._raise_validation_error("Can't get entity id. It must be in query string and be integer")
-        if not request_data.entity_type:
-            cls._raise_validation_error("Can't find database table with name you have provided")
-        if not request_data.entity_model:
-            cls._raise_validation_error(f"Can't find database table with name = {request_data.entity_type}")
+    async def get_by_id(cls, request_data: RequestData):
+        ValidationUtils.check_entity_type(request_data)
+        await ValidationUtils.check_entity_exists_by_id(request_data)
 
-    @staticmethod
-    def _raise_validation_error(message: str):
-        raise ExecutionException(
-            error='validation-error',
-            message=message,
-            http_code=400
-        )
+    @classmethod
+    async def post(cls, request_data: RequestData):
+        ValidationUtils.check_entity_type(request_data)
+        ValidationUtils.check_create_json_schema(request_data)
+
+    @classmethod
+    async def put(cls, request_data: RequestData):
+        ValidationUtils.check_entity_type(request_data)
+        await ValidationUtils.check_entity_exists_by_id(request_data)
+        ValidationUtils.check_update_json_schema(request_data)
+
+    @classmethod
+    async def delete(cls, request_data: RequestData):
+        ValidationUtils.check_entity_type(request_data)
+        await ValidationUtils.check_entity_exists_by_id(request_data)
+

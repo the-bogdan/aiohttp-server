@@ -3,4 +3,5 @@ aiodns==2.0.0
 aiohttp==3.7.4
 cchardet==2.1.7
 asyncpg==0.22.0
-sqlalchemy==1.4.1
+sqlalchemy==1.4.7
+jsonschema==3.2.0
