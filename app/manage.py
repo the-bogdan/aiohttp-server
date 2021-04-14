@@ -3,7 +3,7 @@ import asyncio
 from logger import logger
 from server import run_server
 from argparse import ArgumentParser
-from database import create_db_tables
+from database import PostgresDatabase
 
 
 parser = ArgumentParser(description='Start rest app based on aiohttp')
@@ -15,7 +15,7 @@ args = parser.parse_args()
 def main():
     if args.migrate:
         logger.info('Create all database tables')
-        asyncio.run(create_db_tables())
+        asyncio.run(PostgresDatabase.renew_db_tables())
 
     elif args.run:
         run_server()
