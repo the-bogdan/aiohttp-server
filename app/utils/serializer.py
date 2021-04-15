@@ -1,6 +1,5 @@
 from datetime import datetime
 from collections import defaultdict
-from sqlalchemy.inspection import inspect
 from typing import Iterable, Tuple, Optional
 from aiohttp.web import json_response, Response
 from database import Base as SqlalchemyBase, ModelMapper
@@ -15,6 +14,10 @@ class ResponseSerializer:
 
     @property
     def response(self) -> Response:
+        """
+        Prepare aiohttp Response object with all data inside and
+        unified json format
+        """
         if self._is_collection:
             data = []
             for model_type, entities in self._data.items():
@@ -36,6 +39,7 @@ class ResponseSerializer:
         return json_response(result)
 
     def serialize_object(self, entity: SqlalchemyBase) -> 'ResponseSerializer':
+        """Serialize one database entity"""
         self._is_collection = False
         if entity and isinstance(entity, SqlalchemyBase):
             self._data = self._serialize_object(entity)
@@ -48,6 +52,7 @@ class ResponseSerializer:
         return self
 
     def serialize_collection(self, entities: Iterable[SqlalchemyBase]) -> 'ResponseSerializer':
+        """Serialize some collection or iterable with database entities"""
         self._is_collection = True
         self._data = defaultdict(dict)
         for entity in entities:
@@ -57,12 +62,14 @@ class ResponseSerializer:
         return self
 
     def append_object_in_included(self, entity: SqlalchemyBase) -> 'ResponseSerializer':
+        """Append one database entity in included field in body"""
         if entity and isinstance(entity, SqlalchemyBase):
             entity_id, model_type = self._get_entity_params(entity)
             self._included[model_type][entity_id] = entity
         return self
 
     def append_collection_in_included(self, entities: Iterable[SqlalchemyBase]):
+        """Append a collection or an iterable with database entities in included field in body"""
         for entity in entities:
             if entity and isinstance(entity, SqlalchemyBase):
                 entity_id, model_type = self._get_entity_params(entity)

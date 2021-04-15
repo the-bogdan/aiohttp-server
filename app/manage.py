@@ -14,10 +14,12 @@ args = parser.parse_args()
 
 def main():
     if args.migrate:
+        # Drop all existing tables and create new
         logger.info('Create all database tables')
         asyncio.run(PostgresDatabase.renew_db_tables())
 
     elif args.run:
+        # run server
         run_server()
 
 

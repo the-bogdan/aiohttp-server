@@ -14,6 +14,7 @@ class RequestData:
             request: Request,
             user_id: Optional[int],
             payload: Optional[dict],
+            params: Optional[dict],
             pg_session: AsyncSession,
             entity_id: Optional[int],
             entity_type: Optional[str],
@@ -21,14 +22,14 @@ class RequestData:
     ):
         self._request = request
         self._headers: dict = headers
+        self._params: Optional[dict] = params
+        self._payload: Optional[dict] = payload
 
         self._user_id: Optional[int] = user_id
         self._entity_id: Optional[int] = entity_id
         self._entity_type: Optional[str] = entity_type
         self._entity_model: Optional[Base] = entity_model
         self._pg_session: AsyncSession = pg_session
-
-        self._payload: Optional[dict] = payload
 
     @property
     def request(self) -> Request:
@@ -70,8 +71,14 @@ class RequestData:
         """dict with request payload if it exists"""
         return self._payload
 
+    @property
+    def params(self) -> Optional[dict]:
+        """dict with query params if it exists"""
+        return self._params
+
     @classmethod
     async def create(cls, request: Request) -> 'RequestData':
+        """Build RequestData instance from request"""
         body = await cls._get_body(request)
         entity_id: str = request.match_info.get('id')
         entity_type, entity_model = cls._get_entity_type(request)
@@ -82,6 +89,7 @@ class RequestData:
             entity_type=entity_type,
             entity_model=entity_model,
             user_id=request['user_id'],
+            params=dict(request.query),
             headers=dict(request.headers),
             pg_session=request['postgres_session'],
             entity_id=int(entity_id) if entity_id and entity_id.isdigit() else None
@@ -89,6 +97,7 @@ class RequestData:
 
     @staticmethod
     async def _get_body(request: Request) -> Optional[dict]:
+        """Get json body if it exists"""
         if request.body_exists:
             if request.content_type == 'application/json':
                 return await request.json()
@@ -102,6 +111,7 @@ class RequestData:
 
     @staticmethod
     def _get_entity_type(request: Request) -> tuple[Optional[str], Optional[Base]]:
+        """Get entity type and model from url"""
         entity_type = request.match_info.get('entity_type')
         if entity_type:
             return entity_type, ModelMapper.get_table(entity_type)

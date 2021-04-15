@@ -13,11 +13,18 @@ _types_mapper = {
 
 
 class ModelMapper:
-    """Class provide methods for map model_type to class object"""
+    """
+    Class provide methods for map model_type to class object
+
+    It allows to make base CRUD operations with new table just after
+    description SQLAlchemy ORM model in models.py and creating such table in database
+    """
     _model_type_to_class = {}
     _model_columns = defaultdict(dict)
     _model_json_schema = defaultdict(dict)
 
+    # init one time on start and creates dicts with useful information
+    # about sqlalchemy tables used in project
     for class_ in Base.__subclasses__():
         _model_type_to_class[class_.__tablename__] = class_
 
@@ -43,14 +50,15 @@ class ModelMapper:
 
     @classmethod
     def get_table(cls, model_type: str) -> Optional[Base]:
-        """Return table model object by model_type"""
+        """Return table model object by model_type string"""
         return cls._model_type_to_class.get(model_type)
 
     @classmethod
     def get_columns(cls, model_type: str) -> Optional[dict]:
-        """Return all table columns dict by model_type"""
+        """Return all table columns dict by model_type string"""
         return cls._model_columns.get(model_type)
 
     @classmethod
     def get_json_schema(cls, model_type: str) -> Optional[dict]:
+        """Return json schema by model_type string"""
         return cls._model_json_schema.get(model_type)

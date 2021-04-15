@@ -1,3 +1,4 @@
+from typing import Iterable
 from .request_data import RequestData
 from database import Base, DatabaseAgent
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,9 +29,13 @@ class BaseBusinessModel:
         )
         return entity
 
-    async def search(self) -> list[Base]:
+    async def search(self) -> Iterable[Base]:
         """Get filtered and ordered database entities"""
-        pass
+        entities = await DatabaseAgent.get_all(
+            session=self.session,
+            entity_model=self.request_data.entity_model
+        )
+        return entities
 
     async def create(self) -> Base:
         """Create database entity"""

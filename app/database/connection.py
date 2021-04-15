@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, AsyncEngin
 
 
 class PGContextSession:
+    """Context manager to open postgres session"""
     def __init__(self):
         self.__session_instance: AsyncSession = None
 
@@ -65,7 +66,7 @@ class PostgresDatabase:
                 first_name=fist_name,
                 last_name=last_name,
                 nickname=nickname,
-                password=password,
+                password=User.get_password_hash(password),
                 created_by=1,
                 updated_by=1
             ))

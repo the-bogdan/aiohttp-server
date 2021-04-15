@@ -5,7 +5,13 @@ from sqlalchemy import Column, DateTime, Integer, ForeignKey, text
 
 class MixinCRUD:
     """
-    Add common fields for all tables
+    Add common fields for all tables.
+
+    In project instead of deleting rows from database user "soft delete" method,
+    and this class implements required fields for this.
+
+    Also this fields and methods to set them allows always understand when and by whom
+    entity was created, updated or deleted.
     """
     system_fields = {
         'created_at', 'updated_at', 'deleted_at',

@@ -1,5 +1,6 @@
 from .mixin import MixinCRUD
 
+from hashlib import sha1
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, Float
@@ -9,7 +10,8 @@ __all__ = [
     'Base',
     'User',
     'Order',
-    'UserRelation'
+    'Product',
+    'OrderProduct'
 ]
 
 
@@ -30,16 +32,11 @@ class User(Base, MixinCRUD):
     def __repr__(self):
         return f"Пользователь {self.last_name} {self.first_name}"
 
-
-class UserRelation(Base, MixinCRUD):
-    __tablename__ = 'users_relations'
-
-    id = Column(Integer, primary_key=True)
-    src_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    dst_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
-    src_user = relationship("User", foreign_keys=[src_user_id])
-    dst_user = relationship("User", foreign_keys=[src_user_id])
+    @staticmethod
+    def get_password_hash(password: str) -> str:
+        hasher = sha1()
+        hasher.update(password.encode('utf-8'))
+        return hasher.hexdigest()
 
 
 class OrderProduct(Base, MixinCRUD):

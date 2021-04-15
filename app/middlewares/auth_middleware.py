@@ -1,7 +1,7 @@
 import base64
 
 from database import User
-from sqlalchemy import select
+from database import DatabaseAgent
 from sqlalchemy.ext.asyncio import AsyncSession
 from aiohttp.web import Response, Request, middleware
 from utils.custom_exception import ExecutionException
@@ -32,11 +32,8 @@ async def _check_auth(request: Request) -> bool:
 async def _get_user(nickname: str, password: str, request: Request) -> User:
     """Get user from database by nickname and password"""
     session: AsyncSession = request['postgres_session']
-    result = await session.execute(
-        select(User).where(
-            User.nickname == nickname,
-            User.password == password
-        )
+    filters = (
+        User.nickname == nickname,
+        User.password == User.get_password_hash(password)
     )
-    return result.scalar()
-
+    return await DatabaseAgent.get_one(session, User, filters)

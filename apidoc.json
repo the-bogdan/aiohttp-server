@@ -1,0 +1,8 @@
+{
+  "name": "AioHTTP REST server",
+  "version": "1.0.0",
+  "description": "REST server based on aiohttp and sqlalchemy with async engine",
+  "apidoc": {
+    "title": "REST documentation"
+  }
+}

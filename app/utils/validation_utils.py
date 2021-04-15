@@ -23,7 +23,8 @@ class ValidationUtils:
     }
 
     @classmethod
-    def check_entity_type(cls, request_data: RequestData) -> None:
+    def check_entity_type_correct(cls, request_data: RequestData) -> None:
+        """Check is there such database table, for request entity"""
         if not request_data.entity_type:
             cls.raise_validation_error("Can't find database table with name you have provided")
         if not request_data.entity_model:
@@ -31,17 +32,20 @@ class ValidationUtils:
 
     @classmethod
     def check_create_json_schema(cls, request_data: RequestData) -> None:
+        """Check attributes in json body for creating entity"""
         attributes_schema = ModelMapper.get_json_schema(request_data.entity_type)
         cls._check_json_schema(request_data, attributes_schema)
 
     @classmethod
     def check_update_json_schema(cls, request_data: RequestData) -> None:
+        """Check attributes in json body for updating entity"""
         attributes_schema = {**ModelMapper.get_json_schema(request_data.entity_type)}
         del attributes_schema['required']
         cls._check_json_schema(request_data, attributes_schema)
 
     @classmethod
     async def check_entity_exists_by_id(cls, request_data: RequestData) -> None:
+        """Check is there such entity with id in database"""
         if not request_data.entity_id:
             cls.raise_validation_error("Can't get entity id. It must be in query string and be integer")
         result = await DatabaseAgent.count(
@@ -55,6 +59,7 @@ class ValidationUtils:
 
     @staticmethod
     def raise_validation_error(message: str, http_code: int = 400) -> None:
+        """Raise validation error with message and http_code for response"""
         raise ExecutionException(
             error='validation-error',
             message=message,
@@ -63,6 +68,7 @@ class ValidationUtils:
 
     @classmethod
     def _check_json_schema(cls, request_data: RequestData, attributes_schema: dict):
+        """Create json schema to check and check"""
         if not request_data.payload:
             cls.raise_validation_error("Method requires body with application/json content_type "
                                        "and object with data inside", http_code=415)
@@ -72,6 +78,7 @@ class ValidationUtils:
 
     @classmethod
     def _validate_json_schema(cls, data: dict, schema: dict) -> None:
+        """Check body by json schema"""
         try:
             validate(data, schema)
         except ValidationError as e:

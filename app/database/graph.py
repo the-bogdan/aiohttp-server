@@ -1,3 +1,9 @@
+"""
+This module is not used in application and exists for future functionality with
+ability to get entities from database with their neighbours and create entity with
+related entities by one HTTP request
+"""
+
 import networkx as nx
 
 from typing import List

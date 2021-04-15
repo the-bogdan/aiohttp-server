@@ -25,15 +25,17 @@ class BaseController:
             .serialize_object(entity) \
             .response
 
-    # @classmethod
-    # async def get(cls, request: Request) -> Response:
-    #     """Get filtered and ordered list of entities"""
-    #     bm = BaseBusinessModel(request)
-    #     entities, included = await bm.search()
-    #     return ResponseSerializer() \
-    #         .serialize_collection(entities) \
-    #         .append_collection_in_included(included) \
-    #         .response
+    @classmethod
+    async def get(cls, request: Request) -> Response:
+        """Get filtered and ordered list of entities"""
+        request_data = await RequestData.create(request)
+        await BaseValidator.get(request_data)
+
+        bm = BaseBusinessModel(request_data)
+        entities = await bm.search()
+        return ResponseSerializer() \
+            .serialize_collection(entities) \
+            .response
 
     @classmethod
     async def post(cls, request: Request) -> Response:
