@@ -1,0 +1,28 @@
+version: "3.9"
+
+networks:
+  network:
+
+services:
+  backend:
+    build: .
+
+    container_name: aiohttp_server_backend
+    hostname: aiohttp_server
+    networks:
+      - network
+
+    depends_on:
+      - postgres13
+
+    ports:
+    - "8000:8000"
+
+  postgres13:
+    image: postgres:13
+
+    container_name: aiohttp_server_postgres13
+    networks:
+      - network
+    environment:
+      POSTGRES_PASSWORD: 123456

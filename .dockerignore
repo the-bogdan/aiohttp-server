@@ -1,0 +1,6 @@
+.idea
+
+**/*.pyc
+**/*.log
+
+app/config_example.py
