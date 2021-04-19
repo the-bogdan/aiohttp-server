@@ -5,7 +5,7 @@ config = {
     },
     "logs": {
         "logs_level": "INFO",
-        "logs_path": "logs/steam_exchange_bot.log"
+        "logs_path": "logs/aiohttp_server.log"
     },
     "postgres": {
         "username": "postgres",
