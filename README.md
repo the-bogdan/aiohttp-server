@@ -2,7 +2,7 @@
 
 **Python 3.9**
 
-[**Документация по api**](https://bparshintsev.github.io/aiohttp-server/)
+[**Документация по api**](https://the-bogdan.github.io/aiohttp-server/)
 
 ## Быстрый запуск в docker
 
